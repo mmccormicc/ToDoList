@@ -1,7 +1,10 @@
 package com.example.todolist
 
-data class ToDo(
-    var id: Int,
-    var title : String,
-    var checked : Boolean
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+
+@Entity(tableName = "todo_table")
+class ToDo(
+    @ColumnInfo(name = "id") var title : String,
+    @ColumnInfo(name = "id") var checked : Boolean
 )

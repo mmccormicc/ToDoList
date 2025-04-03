@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ToDoListPage(modifier: Modifier = Modifier) {
 
-    val toDoList = remember { mutableStateListOf(ToDo(0, "1 Rake leaves", false),
-        ToDo(1, "2 Get haircut", false),
-        ToDo(2, "3 Make dinner", false))}
+    val toDoList = remember { mutableStateListOf(ToDo("1 Rake leaves", false),
+        ToDo("2 Get haircut", true),
+        ToDo("3 Make dinner", false))}
 
     var inputText by remember { mutableStateOf("")}
 
@@ -63,7 +63,13 @@ fun ToDoListPage(modifier: Modifier = Modifier) {
             // Add task button
             Button(
                 modifier = Modifier.padding(8.dp),
-                onClick = { inputText = ""},
+                // When clicked
+                onClick = {
+                    // Update list with new to do
+                    toDoList.add(ToDo(inputText, false))
+                    // Reset add task box
+                    inputText = ""
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
             ) {
                 Text(
@@ -90,7 +96,7 @@ fun ToDoListPage(modifier: Modifier = Modifier) {
 @Composable
 fun ToDoItem(item : ToDo, toDoList: MutableList<ToDo>) {
 
-    var checked by remember { mutableStateOf(true)}
+    var checked by remember { mutableStateOf(item.checked)}
 
     // Creating row for each toDoItem
     Row(
@@ -120,9 +126,13 @@ fun ToDoItem(item : ToDo, toDoList: MutableList<ToDo>) {
         }
         // Checkbox for completion
         Checkbox(
-            checked = item.checked,
+            checked = checked,
             colors = CheckboxDefaults.colors(checkedColor = Color.Blue, uncheckedColor = Color.White),
-            onCheckedChange = { checked = it }
+            onCheckedChange = {
+                item.checked = it
+                checked = it
+                println(item.checked)
+            }
         )
     }
 }
