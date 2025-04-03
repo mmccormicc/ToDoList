@@ -1,5 +1,7 @@
 package com.example.todolist
 
+import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,8 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,17 +27,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp;
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Observer
 
 
 @Composable
-fun ToDoListPage(modifier: Modifier = Modifier) {
+fun ToDoListPage(modifier: Modifier = Modifier, activity: AppCompatActivity) {
 
-    val toDoList = remember { mutableStateListOf(ToDo("1 Rake leaves", false),
-        ToDo("2 Get haircut", true),
-        ToDo("3 Make dinner", false))}
+    lateinit var toDoViewModel: ToDoViewModel
+
+    //val toDoItemLists = remember { mutableStateListOf(ToDoItem("1 Rake leaves", false),
+    //    ToDoItem("2 Get haircut", true),
+    //    ToDoItem("3 Make dinner", false))}
 
     var inputText by remember { mutableStateOf("")}
 
@@ -66,7 +68,8 @@ fun ToDoListPage(modifier: Modifier = Modifier) {
                 // When clicked
                 onClick = {
                     // Update list with new to do
-                    toDoList.add(ToDo(inputText, false))
+                    val newToDo = ToDoItem(inputText, false)
+                    //toDoViewModel.addToDoItem(newToDo)
                     // Reset add task box
                     inputText = ""
                 },
@@ -86,15 +89,24 @@ fun ToDoListPage(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxHeight()
         ) {
             // Creating todoItem for each item in list
-            itemsIndexed(toDoList) { index, item ->
-                ToDoItem(item = item, toDoList = toDoList)
+//            itemsIndexed(toDoViewModel.getToDoItems()) { index, item ->
+//                ToDoItem(item = item, toDoItemList = toDoItemLists)
+//            }
+            toDoViewModel.toDoItems.observe(activity) { toDoList ->
+                //print(toDoList)
+//                itemsIndexed(toDoList) { index, item ->
+//                    ToDoItem(item = item)
+//                }
+
             }
         }
     }
 }
 
 @Composable
-fun ToDoItem(item : ToDo, toDoList: MutableList<ToDo>) {
+fun ToDoItem(item : ToDoItem) {
+
+    lateinit var toDoViewModel: ToDoViewModel
 
     var checked by remember { mutableStateOf(item.checked)}
 
@@ -115,7 +127,7 @@ fun ToDoItem(item : ToDo, toDoList: MutableList<ToDo>) {
         )
         // Delete button
         Button(
-            onClick = { toDoList.remove(item) },
+            onClick = { toDoViewModel.addToDoItem(item) },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
             Text(
