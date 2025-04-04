@@ -1,7 +1,5 @@
 package com.example.todolist
 
-import androidx.activity.ComponentActivity
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,18 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp;
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Observer
 
 
 @Composable
-fun ToDoListPage(modifier: Modifier = Modifier, activity: AppCompatActivity) {
+fun ToDoListPage(modifier: Modifier = Modifier, toDoViewModel: ToDoViewModel, toDoItemList : List<ToDoItem>) {
 
-    lateinit var toDoViewModel: ToDoViewModel
-
-    //val toDoItemLists = remember { mutableStateListOf(ToDoItem("1 Rake leaves", false),
-    //    ToDoItem("2 Get haircut", true),
-    //    ToDoItem("3 Make dinner", false))}
-
+    // Holds text of box used to add to-do
     var inputText by remember { mutableStateOf("")}
 
     // Base column that uses inner padding
@@ -69,12 +60,15 @@ fun ToDoListPage(modifier: Modifier = Modifier, activity: AppCompatActivity) {
                 onClick = {
                     // Update list with new to do
                     val newToDo = ToDoItem(inputText, false)
-                    //toDoViewModel.addToDoItem(newToDo)
-                    // Reset add task box
+                    // Calling add item function in view model
+                    toDoViewModel.addToDoItem(newToDo)
+                    // Reset add to-do box
                     inputText = ""
                 },
+                // Setting add button to blue
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
             ) {
+                // Text for add button
                 Text(
                     text = "Add",
                     color = Color.White,
@@ -83,31 +77,23 @@ fun ToDoListPage(modifier: Modifier = Modifier, activity: AppCompatActivity) {
             }
         }
 
-        // Lazy column for displaying todolist items
+        // Lazy column for displaying toDoItemList
         LazyColumn(
             // Filling entire height
             modifier = Modifier.fillMaxHeight()
         ) {
-            // Creating todoItem for each item in list
-//            itemsIndexed(toDoViewModel.getToDoItems()) { index, item ->
-//                ToDoItem(item = item, toDoItemList = toDoItemLists)
-//            }
-            toDoViewModel.toDoItems.observe(activity) { toDoList ->
-                //print(toDoList)
-//                itemsIndexed(toDoList) { index, item ->
-//                    ToDoItem(item = item)
-//                }
-
-            }
+                // Creating toDoItem entry for each item in list
+                itemsIndexed(toDoItemList) { index, item ->
+                    ToDoItem(item = item, toDoViewModel = toDoViewModel)
+                }
         }
     }
 }
 
+// Composable for todoItem
 @Composable
-fun ToDoItem(item : ToDoItem) {
-
-    lateinit var toDoViewModel: ToDoViewModel
-
+fun ToDoItem(item : ToDoItem, toDoViewModel: ToDoViewModel) {
+    // Holds if checkbox in ui element is checked or not
     var checked by remember { mutableStateOf(item.checked)}
 
     // Creating row for each toDoItem
@@ -127,23 +113,27 @@ fun ToDoItem(item : ToDoItem) {
         )
         // Delete button
         Button(
-            onClick = { toDoViewModel.addToDoItem(item) },
+            // Calling delete function from view model
+            onClick = { toDoViewModel.deleteToDoItem(item) },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
+            // Delete button text
             Text(
                 text = "Delete",
                 color = Color.White,
                 fontSize = 16.sp
             )
         }
-        // Checkbox for completion
+        // Checkbox for to-do completion
         Checkbox(
             checked = checked,
             colors = CheckboxDefaults.colors(checkedColor = Color.Blue, uncheckedColor = Color.White),
             onCheckedChange = {
+                // Updating checked status when clicked
                 item.checked = it
                 checked = it
-                println(item.checked)
+                // Updating todoItem to mark as checked
+                toDoViewModel.updateToDoItem(item)
             }
         )
     }

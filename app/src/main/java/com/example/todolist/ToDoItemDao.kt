@@ -1,21 +1,24 @@
 package com.example.todolist;
 
 import androidx.room.*;
-//import androidx.room.Query;
 
 import kotlinx.coroutines.flow.Flow;
 
 @Dao
 interface ToDoItemDao {
-    @Query("SELECT * FROM todo_table ORDER BY id ASC")
+    // Retrieving all items from table of toDoItems
+    @Query("SELECT * FROM todo_table")
     fun allToDoItems(): Flow<List<ToDoItem>>
 
+    // Inserting into table
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertToDoItem(toDoItem : ToDoItem)
 
+    // Updating table entry
     @Update
     suspend fun updateToDoItem(toDoItem : ToDoItem)
 
+    // Deleting table entry
     @Delete
     suspend fun deleteToDoItem(toDoItem : ToDoItem)
 }
